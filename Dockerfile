@@ -8,9 +8,12 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies (needed for some pandas/numpy operations)
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+# libgomp1 is REQUIRED for scikit-learn to work in Docker
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libgomp1 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
