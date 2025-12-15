@@ -2,7 +2,7 @@ fastapi
 uvicorn
 python-multipart
 pandas
-numpy
+numpy<2.0.0
 scikit-learn
 evidently
 jinja2
