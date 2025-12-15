@@ -144,13 +144,25 @@ $$ \text{Revenue Risk} = \text{Volume} \times \text{AvgCost} \times (\alpha \cdo
 
 ---
 
-## Project Scope & Non-Goals
+## Project Scope
 
-To maintain focus on reliability engineering patterns, this project adheres to specific constraints:
+ModelGuard is designed as a **production-style ML reliability control plane**.
 
-*   **Not a SaaS Product:** This is an architectural reference implementation, not a multi-tenant hosted service.
-*   **No Live Traffic:** The system processes batch data to demonstrate remediation logic; it does not sit in the hot path of a real-time inference request.
-*   **Deterministic Logic:** We utilize explicit rule-based decisioning rather than "AI monitoring AI" to ensure explainability and predictability in failure modes.
+It focuses on governance, drift detection, and automated remediation logic — the layer responsible for deciding *when* models should be trusted, blocked, or rolled back.
+
+### Intentional Design Choices
+
+- **Control-Plane Architecture**  
+  This system operates outside the real-time inference path to ensure decisions are auditable, explainable, and safe under failure conditions.
+
+- **Batch-Oriented Evaluation**  
+  Drift and fairness are evaluated on batches to prioritize statistical validity over low-latency execution.
+
+- **Deterministic Remediation Logic**  
+  Explicit rule-based decisioning is used to guarantee predictable and reviewable actions during high-risk events.
+
+These choices mirror how reliability and governance systems are deployed in regulated production environments.
+
 
 ---
 
