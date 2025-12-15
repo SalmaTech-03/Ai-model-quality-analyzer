@@ -1,7 +1,7 @@
 
 <div align="center">
   <img src="author.png" width="120" height="120" style="border-radius: 50%; border: 3px solid #333;" alt="Author Profile">
-  <h1>ModelGuard AI</h1>
+  <h1>AI-model-quality-analyzer</h1>
   <h3>Enterprise ML Observability & Remediation Platform</h3>
 
   <p>
