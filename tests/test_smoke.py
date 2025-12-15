@@ -5,10 +5,9 @@ client = TestClient(app)
 
 def test_app_starts():
     """
-    Nuclear Smoke Test:
-    If this passes, the app installed correctly and imports are working.
+    Smoke Test:
+    Verifies that the app can initialize and return the homepage.
     """
     response = client.get("/")
-    # We accept 200 (OK) or 404 (Not Found) or 405 (Method Not Allowed)
-    # as long as it's not 500 (Server Error)
+    # We expect 200, but any non-500 code means the app isn't crashing
     assert response.status_code != 500
