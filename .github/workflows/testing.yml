@@ -23,7 +23,9 @@ jobs:
         run: python scripts/download_data.py
         
       - name: Run Tests
-        # The 'export' line fixes the "No module named app" error
         run: |
-          export PYTHONPATH=$PYTHONPATH:.
-          python -m pytest
+          # Create data directory if missing to prevent download errors
+          mkdir -p data
+          python scripts/download_data.py
+          pytest
+
