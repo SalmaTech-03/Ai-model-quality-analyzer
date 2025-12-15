@@ -16,7 +16,11 @@
     <img src="https://img.shields.io/github/license/SalmaTech-03/Ai-model-quality-analyzer?style=for-the-badge&color=green" alt="License">
     <img src="https://img.shields.io/github/repo-size/SalmaTech-03/Ai-model-quality-analyzer?style=for-the-badge&color=orange" alt="Repo Size">
   </p>
-
+  <p align="center">
+  <a href="https://medium.com/@S_SALMA_/stop-staring-at-dashboards-building-an-automated-circuit-breaker-for-production-ml-d873307ec73f">
+    <img src="https://img.shields.io/badge/Medium-Read%20the%20Case%20Study-black?style=for-the-badge&logo=medium&logoColor=white" alt="Read on Medium">
+  </a>
+</p>
   <!-- TECH STACK BADGES -->
   <p>
     <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
