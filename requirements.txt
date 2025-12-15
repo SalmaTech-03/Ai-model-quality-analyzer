@@ -9,4 +9,4 @@ jinja2
 httpx
 pytest
 scipy
-pydantic
+pydantic<2.0.0
