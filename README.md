@@ -1,25 +1,43 @@
 
 <div align="center">
-  <img src="author.png" width="120" height="120" style="border-radius: 50%; border: 3px solid #333;" alt="Author Profile">
+  <img src="https://github.com/SalmaTech-03.png" width="120" height="120" style="border-radius: 50%; border: 3px solid #333;" alt="Author Profile">
+  
   <h1>AI-model-quality-analyzer</h1>
-  <h3>Enterprise ML Observability & Remediation Platform</h3>
+  <h3>Production-Style ML Observability & Reliability System</h3>
 
+  <!-- PROJECT STATUS -->
   <p>
-    <a href="#">
-      <img src="https://img.shields.io/badge/Language-Python_3.10-00599C?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+    <a href="https://github.com/SalmaTech-03/Ai-model-quality-analyzer/actions">
+      <img src="https://img.shields.io/github/actions/workflow/status/SalmaTech-03/Ai-model-quality-analyzer/testing.yml?style=for-the-badge&logo=github-actions&label=Test%20Suite" alt="Tests">
     </a>
-    <a href="#">
-      <img src="https://img.shields.io/badge/Framework-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+    <a href="https://github.com/SalmaTech-03/Ai-model-quality-analyzer/actions">
+      <img src="https://img.shields.io/github/actions/workflow/status/SalmaTech-03/Ai-model-quality-analyzer/deploy.yml?style=for-the-badge&logo=docker&label=Docker%20Build" alt="Docker Build">
     </a>
-    <a href="#">
-      <img src="https://img.shields.io/badge/Container-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-    </a>
-    <a href="#">
-      <img src="https://img.shields.io/badge/Architecture-Event_Driven-555555?style=for-the-badge" alt="Architecture">
-    </a>
-    <a href="#">
-      <img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License">
-    </a>
+    <img src="https://img.shields.io/github/license/SalmaTech-03/Ai-model-quality-analyzer?style=for-the-badge&color=green" alt="License">
+    <img src="https://img.shields.io/github/repo-size/SalmaTech-03/Ai-model-quality-analyzer?style=for-the-badge&color=orange" alt="Repo Size">
+  </p>
+
+  <!-- CORE STACK -->
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
+    <img src="https://img.shields.io/badge/Docker-Container-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+    <img src="https://img.shields.io/badge/SQLite-State%20Store-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
+  </p>
+
+  <!-- DATA SCIENCE STACK -->
+  <p>
+    <img src="https://img.shields.io/badge/Pandas-Data-150458?style=flat-square&logo=pandas&logoColor=white" alt="Pandas">
+    <img src="https://img.shields.io/badge/NumPy-Math-013243?style=flat-square&logo=numpy&logoColor=white" alt="NumPy">
+    <img src="https://img.shields.io/badge/SciPy-Stats-8CAAE6?style=flat-square&logo=scipy&logoColor=white" alt="SciPy">
+    <img src="https://img.shields.io/badge/Evidently-Drift-4B0082?style=flat-square" alt="Evidently">
+  </p>
+
+  <!-- QUALITY & TOOLS -->
+  <p>
+    <img src="https://img.shields.io/badge/Pydantic-Validation-E92063?style=flat-square&logo=pydantic&logoColor=white" alt="Pydantic">
+    <img src="https://img.shields.io/badge/Code%20Style-Black-000000?style=flat-square&logo=python&logoColor=white" alt="Black">
+    <img src="https://img.shields.io/badge/Architecture-Event%20Driven-ff69b4?style=flat-square" alt="Event Driven">
   </p>
 </div>
 
@@ -33,15 +51,15 @@
 </div>
 
 ![ModelGuard Dashboard](ai_model_quality_analyse.png)
-*Figure 2: The ModelGuard Operator Interface illustrating feature drift quantification.*
+*Figure 2: The ModelGuard Interface showing feature drift quantification.*
 
 ---
 
 ## Executive Summary
 
-**ModelGuard AI** operates as an automated Reliability Engineer for production Machine Learning pipelines. Unlike passive monitoring tools that simply visualize data, ModelGuard employs **Causal Logic** to quantify financial risk, enforce strict **Data Contracts**, and autonomously execute remediation strategies (Rollback, Shadow Mode, Retraining).
+**ModelGuard AI** is a production-style ML reliability system designed to detect data drift, enforce data contracts, and trigger deterministic remediation actions.
 
-The platform introduces a **Circuit Breaker** architecture designed to prevent catastrophic failure modes—specifically Target Drift—that aggregate metrics frequently fail to detect.
+Unlike passive monitoring tools that only surface metrics, ModelGuard converts statistical signals into explicit operational decisions such as rollback, traffic shadowing, or ingestion rejection. It introduces a **Circuit Breaker** architecture designed to prevent catastrophic failure modes—specifically Target Drift—that aggregate metrics frequently fail to catch.
 
 ---
 
@@ -126,6 +144,16 @@ $$ \text{Revenue Risk} = \text{Volume} \times \text{AvgCost} \times (\alpha \cdo
 
 ---
 
+## Project Scope & Non-Goals
+
+To maintain focus on reliability engineering patterns, this project adheres to specific constraints:
+
+*   **Not a SaaS Product:** This is an architectural reference implementation, not a multi-tenant hosted service.
+*   **No Live Traffic:** The system processes batch data to demonstrate remediation logic; it does not sit in the hot path of a real-time inference request.
+*   **Deterministic Logic:** We utilize explicit rule-based decisioning rather than "AI monitoring AI" to ensure explainability and predictability in failure modes.
+
+---
+
 ## Deployment & Usage
 
 ### Local Initialization
@@ -186,6 +214,6 @@ LIMIT 5;
 
 <div align="center">
   <p><strong>Developed by Salma S</strong></p>
-  <p>Machine Learning Engineer | Systems Architect</p>
+  <p>ML / MLOps Engineer</p>
 </div>
 ```
