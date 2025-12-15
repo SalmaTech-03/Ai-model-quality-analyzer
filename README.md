@@ -1,182 +1,191 @@
 
-# 🛡️ ModelGuard AI: Enterprise Observability & Remediation Platform
+<div align="center">
+  <img src="author.png" width="120" height="120" style="border-radius: 50%; border: 3px solid #333;" alt="Author Profile">
+  <h1>ModelGuard AI</h1>
+  <h3>Enterprise ML Observability & Remediation Platform</h3>
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi)
-![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker)
-![Architecture](https://img.shields.io/badge/Architecture-Event--Driven-orange?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-
-> **A production-grade ML reliability platform that bridges the gap between passive monitoring and active remediation.**
-
----
-
-## 🎥 Platform Demo
-
-<video src="project_new.mp4" controls="controls" style="max-width: 100%;">
-  Your browser does not support the video tag.
-</video>
-
-## 🎥 Platform Demo
-
-<video src="demo.mp4" controls="controls" style="max-width: 100%;">
-  Your browser does not support the video tag.
-</video>
-
-*(Note: If the video does not render on GitHub mobile, please view on desktop)*
+  <p>
+    <a href="#">
+      <img src="https://img.shields.io/badge/Language-Python_3.10-00599C?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+    </a>
+    <a href="#">
+      <img src="https://img.shields.io/badge/Framework-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+    </a>
+    <a href="#">
+      <img src="https://img.shields.io/badge/Container-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+    </a>
+    <a href="#">
+      <img src="https://img.shields.io/badge/Architecture-Event_Driven-555555?style=for-the-badge" alt="Architecture">
+    </a>
+    <a href="#">
+      <img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License">
+    </a>
+  </p>
+</div>
 
 ---
 
-## 📋 Executive Summary
+## System Demonstration
 
-**ModelGuard AI** is not just a dashboard; it is an automated **Reliability Engineer** for Machine Learning pipelines. 
+<div align="center">
+  <video src="demovideo.mp4" controls width="100%"></video>
+  <p><em>Figure 1: Real-time drift analysis triggering the automated circuit breaker.</em></p>
+</div>
 
-While standard tools only visualize statistical drift, ModelGuard implements **Causal Logic** to quantify financial risk, enforce **Data Contracts**, and autonomously trigger remediation pipelines (Rollback, Shadow Mode, Retraining). It features a **Circuit Breaker** architecture to prevent catastrophic failure modes (e.g., Target Drift) that standard aggregated metrics often miss.
-
----
-
-## 🚀 Key Enterprise Features
-
-### 1. ⛔ Circuit Breaker Architecture (The "Kill Switch")
-Passive monitoring isn't enough. ModelGuard implements a **Hard Override** logic gate.
-*   **Logic:** If `Target Drift` (Label Shift) > `0.1`, the system triggers an **Emergency Rollback** immediately.
-*   **Why:** Averages lie. If 9 features are stable but the Target flips, the average risk score looks low, but the model is useless. We prioritize failure modes.
-
-### 2. 🛡️ Data Contracts (The Gatekeeper)
-Prevents "Garbage In, Garbage Out" using strict **Pydantic** schemas.
-*   **Action:** Validates incoming batches against defined schemas (e.g., `age >= 17`, `capital-gain >= 0`).
-*   **Result:** Invalid data is rejected with `400 Bad Request` before it pollutes the inference engine.
-
-### 3. 💸 Financial Risk Engine
-Translates abstract statistical metrics into C-Suite ready KPIs.
-*   **Formula:** `Risk = Volume × Avg Cost of Error ($150) × (Drift Score × Error Correlation)`
-*   **Impact:** Moves the conversation from "KL Divergence is up" to "We are risking $125k/day."
-
-### 4. ⚖️ Fairness & Ethics Auditor
-Automatically scans for **Disparate Impact** on protected groups (Race/Sex).
-*   **Metric:** Disparate Impact Ratio (DIR).
-*   **Rule:** If `DIR < 0.8` (The 4/5ths Rule), deployment is blocked via the **FairnessMonitor** engine.
-
-### 5. 🧠 Deterministic Decision Engine
-Replaces vague alerts with explicit, rule-based pipeline triggers:
-*   *Weighted Risk > 65* → **Trigger Canary Deployment**
-*   *Bias Detected* → **Block Deployment & Notify Legal**
-*   *Target Drift* → **Kill Traffic & Rollback**
+![ModelGuard Dashboard](ai_model_quality_analyse.png)
+*Figure 2: The ModelGuard Operator Interface illustrating feature drift quantification.*
 
 ---
 
-## 🏗️ System Architecture
+## Executive Summary
 
-ModelGuard uses a modular architecture designed for scalability and state management.
+**ModelGuard AI** operates as an automated Reliability Engineer for production Machine Learning pipelines. Unlike passive monitoring tools that simply visualize data, ModelGuard employs **Causal Logic** to quantify financial risk, enforce strict **Data Contracts**, and autonomously execute remediation strategies (Rollback, Shadow Mode, Retraining).
+
+The platform introduces a **Circuit Breaker** architecture designed to prevent catastrophic failure modes—specifically Target Drift—that aggregate metrics frequently fail to detect.
+
+---
+
+## Architectural Design
+
+The system follows a linear reliability pipeline, acting as middleware between data ingestion and model inference.
 
 ```mermaid
-graph TD
-    A[Ingestion API] -->|Validate Schema| B(Data Contracts)
-    B -->|Pass| C[Drift Engine]
-    B -->|Fail| Z[400 Error]
+flowchart LR
+    A[Inbound Data Stream] -->|Validate| B{Data Contract Gate}
     
-    C --> D{Circuit Breaker}
-    D -->|Target Drift > 0.1| E[EMERGENCY ROLLBACK]
-    D -->|Bias Detected| F[BLOCK DEPLOYMENT]
-    D -->|Safe| G[Weighted Scoring]
+    B -- Invalid Schema --> C[REJECT: HTTP 400]
+    B -- Valid Schema --> D[Analysis Engine]
     
-    G --> H[Financial Risk Calc]
-    G --> I[Remediation Strategy]
+    subgraph Core Logic
+        D --> E[Statistical Tests]
+        D --> F[Fairness Auditor]
+        D --> G[Financial Risk Calc]
+    end
     
-    I --> J[SQLite State Store]
-    J --> K[Dashboard UI]
+    G --> H{Decision Matrix}
+    
+    H -- Target Drift > 0.1 --> I[CRITICAL: Rollback]
+    H -- Bias Detected --> J[BLOCK: Compliance]
+    H -- Weighted Risk > 65 --> K[WARN: Shadow Mode]
+    H -- Nominal --> L[PASS: Deployment]
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Comparative Analysis
 
-| Component | Technology | Purpose |
+ModelGuard shifts the focus from observation to action.
+
+| Feature | Traditional Monitoring | ModelGuard AI |
 | :--- | :--- | :--- |
-| **Backend** | `FastAPI`, `Uvicorn` | High-performance async API. |
-| **Validation** | `Pydantic` | Strict Data Contracts and Schema enforcement. |
-| **Math Kernel** | `Evidently AI`, `SciPy`, `NumPy` | KS-Tests, P-Values, Drift Calculation. |
-| **State** | `SQLite` | Embedded audit logs, versioning, and cooldown tracking. |
-| **Frontend** | `Vanilla JS`, `CSS3` | Lightweight, no-build-step Glassmorphism UI. |
-| **Container** | `Docker`, `Docker Compose` | Portable deployment. |
+| **Logic Model** | Passive Observation | Active Deterministic Remediation |
+| **Alerting** | Threshold-based Noise | Business-Impact Weighted |
+| **Data Quality** | Post-Mortem Debugging | Pre-Ingestion Data Contracts |
+| **Metrics** | Aggregate Drift Scores | Target-Aware Risk Scoring |
+| **Governance** | Manual Review | Automated Fairness Circuit Breakers |
 
 ---
 
-## ⚡ Quick Start
+## Decision Matrix & Automated Governance
 
-### Option A: Local Python Setup
+The platform converts statistical signals into binary operational actions using the following logic gates:
+
+| Signal Severity | Trigger Condition | System Action | Operational Impact |
+| :--- | :--- | :--- | :--- |
+| **CRITICAL** | `Target Drift > 0.1` | **ROLLBACK** | Immediate traffic termination to prevent invalid inference. |
+| **HIGH** | `DIR < 0.8` | **BLOCK** | Deployment halted due to violation of 4/5ths fairness rule. |
+| **MEDIUM** | `Risk Score > 65` | **SHADOW** | Traffic routed to canary model for parallel evaluation. |
+| **LOW** | `Contract Violation` | **REJECT** | Ingestion API returns 400 Error to upstream producer. |
+
+---
+
+## Financial Risk Quantification
+
+ModelGuard translates technical drift metrics into estimated financial impact using a heuristic cost-basis model.
+
+$$ \text{Revenue Risk} = \text{Volume} \times \text{AvgCost} \times (\alpha \cdot D_{feature} + \beta \cdot D_{target}) $$
+
+**Where:**
+*   **Volume**: Throughput of the current batch.
+*   **AvgCost**: Business cost of a False Prediction ($150.00).
+*   **D**: Drift Score (0.0 - 1.0).
+*   **Alpha/Beta**: Correlation coefficients for feature vs. target drift.
+
+---
+
+## Technology Stack
+
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **API Server** | `FastAPI` + `Uvicorn` | High-concurrency asynchronous ingestion. |
+| **Validation** | `Pydantic` | Strict schema enforcement and type checking. |
+| **Computation** | `SciPy` + `NumPy` | Kolmogorov-Smirnov tests and P-Value calculation. |
+| **Drift Detection** | `Evidently AI` | Statistical profiling and distance measurement. |
+| **State Store** | `SQLite` | Audit logging, versioning, and cooldown management. |
+| **Frontend** | `Vanilla JS` + `CSS3` | Lightweight, dependency-free visualization layer. |
+
+---
+
+## Deployment & Usage
+
+### Local Initialization
+
 ```bash
-# 1. Clone & Install
-git clone https://github.com/yourusername/modelguard.git
-cd modelguard
+# 1. Clone Repository
+git clone https://github.com/SalmaTech-03/Ai-model-quality-analyzer.git
+
+# 2. Setup Environment
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Download Demo Data (Adult Census & Housing)
+# 3. Hydrate Data
 python scripts/download_data.py
 
-# 3. Run Server
+# 4. Launch Service
 uvicorn app.main:app --reload
 ```
 
-### Option B: Docker Deployment
+### Docker Execution
+
 ```bash
-# Build and Run
 docker-compose up --build
 ```
 
-Access the dashboard at `http://localhost:8000`.
+### SQL Analyst Interface
 
----
+ModelGuard exposes an embedded SQL engine for root-cause analysis on ingested batches.
 
-## 🕵️‍♂️ Analyst Mode (SQL Interface)
-
-ModelGuard includes an embedded SQL engine allowing Data Analysts to query drift data directly.
-
-**Example Endpoint:** `POST /api/sql`
-```json
-{
-  "query": "SELECT occupation, count(*) as vol FROM current_table WHERE class = '>50K' GROUP BY occupation ORDER BY vol DESC LIMIT 5"
-}
+**Endpoint:** `POST /api/sql`
+```sql
+SELECT occupation, COUNT(*) as volume
+FROM current_table
+WHERE income = '>50K'
+GROUP BY occupation
+ORDER BY volume DESC
+LIMIT 5;
 ```
-*Use Case: Identifying exactly which user segment is driving the revenue risk.*
 
 ---
 
-## 🧪 Statistical Rigor
-
-We don't just guess; we prove significance.
-*   **Kolmogorov-Smirnov (KS) Test:** Calculated for numerical features to ensure drift isn't just random noise.
-*   **P-Values:** Exposed in the dashboard console (`F12`) for Data Science deep-dives.
-
----
-
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── app/
-│   ├── api/
-│   │   └── routes.py         # Endpoints (Ingest, SQL, Analysis)
-│   ├── core/
-│   │   ├── drift_engine.py   # The Brain (Math + Logic + Circuit Breaker)
-│   │   ├── schemas.py        # Data Contracts (Pydantic)
-│   │   ├── database.py       # State Management (SQLite)
-│   │   └── registry.py       # Artifact Versioning
-│   ├── static/               # Frontend Assets
-│   └── main.py               # Entry point
-├── data/                     # Local datasets
-├── tests/                    # Pytest suite
-├── project_new.mp4           # Demo Video
-├── docker-compose.yml        # Orchestration
-└── requirements.txt          # Dependencies
+│   ├── api/            # API Route Definitions
+│   ├── core/           # Mathematical & Logic Engines
+│   ├── static/         # Dashboard Assets
+│   └── main.py         # App Entry Point
+├── data/               # Local Data Storage
+├── tests/              # Pytest Suite
+├── docker-compose.yml  # Container Orchestration
+└── requirements.txt    # Dependency Manifest
 ```
 
 ---
 
-## 👤 Author
-
-**Salma S**  
-
-
-Built to demonstrate how **Production ML** requires more than just models—it requires **Systems Thinking**.
+<div align="center">
+  <p><strong>Developed by Salma S</strong></p>
+  <p>Machine Learning Engineer | Systems Architect</p>
+</div>
+```
