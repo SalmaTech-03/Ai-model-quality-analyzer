@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-grid">
+    
+    <!-- LEFT PANEL: COMMAND CENTER -->
+    <aside class="sidebar">
+        
+        <!-- 1. CONTROL CARD -->
+        <div class="card control-card" style="animation-delay: 0.1s;">
+            
+            <!-- Header / Toggle -->
+            <div class="toggle-container">
+                <span style="font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; color: var(--accent);">
+                    LIVE MONITORING
+                </span>
+                <div>
+                    <input type="checkbox" id="checkboxInput">
+                    <label for="checkboxInput" class="toggleSwitch"></label>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 15px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                📂 Data Ingestion
+            </h3>
+            
+            <form id="analyzeForm">
+                <!-- Custom Dropzone 1 -->
+                <div class="file-dropzone" id="dropRef">
+                    <span class="file-icon">📉</span>
+                    <span class="file-label">Drag & Drop <b>Reference Data</b> (Train)</span>
+                    <input type="file" id="refFile" accept=".csv" required onchange="handleFileSelect('dropRef', this)">
+                </div>
+
+                <!-- Custom Dropzone 2 -->
+                <div class="file-dropzone" id="dropCurr">
+                    <span class="file-icon">📊</span>
+                    <span class="file-label">Drag & Drop <b>Current Data</b> (Prod)</span>
+                    <input type="file" id="currFile" accept=".csv" required onchange="handleFileSelect('dropCurr', this)">
+                </div>
+
+                <!-- NEON SCAN BUTTON -->
+                <div class="btn-wrapper">
+                    <button class="btn" type="submit" id="runBtn">
+                        <svg class="btn-svg" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        <span class="btn-letter">S</span>
+                        <span class="btn-letter">C</span>
+                        <span class="btn-letter">A</span>
+                        <span class="btn-letter">N</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 2. BUSINESS IMPACT CARD (Replaces Old Gauge) -->
+        <div id="riskCard" class="card hidden" style="animation-delay: 0.2s;">
+            
+            <!-- Action Directive -->
+            <div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="margin:0; color:#94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;">
+                    AI DECISION ENGINE
+                </h4>
+                <div id="actionBadge" style="font-size: 2rem; font-weight: 900; margin-top: 5px; letter-spacing: 1px;">
+                    --
+                </div>
+                <div id="actionDesc" style="font-size: 0.85rem; color: #cbd5e1; margin-top: 5px; font-style: italic;">
+                    --
+                </div>
+            </div>
+
+            <!-- Financial Metrics -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px;">
+                <div>
+                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase;">Est. Revenue Risk</div>
+                    <div id="revenueRisk" style="font-size: 1.1rem; font-weight: 700; color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">
+                        --
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase;">Impact Score</div>
+                    <div id="businessScore" style="font-size: 1.1rem; font-weight: 700; color: white;">
+                        --
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. LEADERBOARD CARD -->
+        <div id="leaderboardCard" class="card hidden" style="animation-delay: 0.3s;">
+            <h4 style="margin:0 0 15px 0; color:var(--text); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                ⚠️ Critical Drift Drivers
+            </h4>
+            <ul id="lbList" class="drift-list"></ul>
+        </div>
+    </aside>
+
+    <!-- RIGHT PANEL: REPORT VIEWER -->
+    <section class="report-area" style="animation-delay: 0.4s;">
+        
+        <!-- LOADING STATE (Cyberpunk Circuit) -->
+        <div id="processingState" class="placeholder-state hidden" style="background: #0f172a;">
+             <div class="main-container">
+                <svg class="loader" viewBox="0 0 100 100">
+                    <circle class="trace-bg" cx="50" cy="50" r="48"></circle>
+                    <circle class="trace-flow blue" cx="50" cy="50" r="48"></circle>
+                    <rect class="chip-body" x="30" y="30" width="40" height="40"></rect>
+                    <text class="chip-text" x="50" y="58">AI</text>
+                </svg>
+            </div>
+            <h3 style="color: white; margin-top: 20px; font-family: 'Courier New', monospace; letter-spacing: 2px;">
+                CALCULATING FINANCIAL RISK...
+            </h3>
+        </div>
+
+        <!-- INITIAL STATE -->
+        <div id="initialState" class="placeholder-state" style="background: #0f172a;">
+            <div style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.8; filter: drop-shadow(0 0 20px #3b82f6);">
+                🛡️
+            </div>
+            <h2 style="color: white; letter-spacing: 2px;">SYSTEM ONLINE</h2>
+            <p style="color: #94a3b8;">Upload production logs to initiate audit</p>
+        </div>
+
+        <!-- IFRAME (Report) -->
+        <iframe id="reportFrame" class="hidden"></iframe>
+    </section>
+</main>
+{% endblock %}

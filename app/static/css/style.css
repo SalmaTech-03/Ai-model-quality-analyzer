@@ -1,0 +1,226 @@
+/* =========================================
+   1. ANIMATED BACKGROUND & THEME
+   ========================================= */
+:root {
+    --bg-dark: #020617;
+    --glass: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #3b82f6;
+    --neon-blue: #00f3ff;
+    --neon-red: #ff0055;
+    --neon-amber: #ffaa00;
+    --text: #f8fafc;
+    --text-dim: #94a3b8;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+    /* Animated Aurora Background */
+    background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #0f0518);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    height: 100vh;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* =========================================
+   2. GLASSMORPHISM LAYOUT
+   ========================================= */
+.navbar {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0; width: 100%; z-index: 1000;
+}
+
+.logo { 
+    font-weight: 800; font-size: 1.4rem; 
+    background: linear-gradient(90deg, #fff, var(--accent)); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex; align-items: center; gap: 10px; 
+}
+
+.badge { 
+    background: var(--accent); color: white; -webkit-text-fill-color: white;
+    font-size: 0.6rem; padding: 2px 8px; border-radius: 12px; 
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 25px;
+    padding: 25px;
+    padding-top: 90px; /* Space for fixed navbar */
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Glass Cards */
+.card {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.card:hover {
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.15);
+    border-color: rgba(255,255,255,0.2);
+}
+
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* =========================================
+   3. CUSTOM FILE INPUTS (DROPZONES)
+   ========================================= */
+.file-dropzone {
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.file-dropzone:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+.file-dropzone.uploaded { border-color: var(--neon-blue); border-style: solid; }
+
+.file-label { font-size: 0.8rem; color: var(--text-dim); pointer-events: none; }
+.file-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; color: var(--text); }
+input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+
+/* =========================================
+   4. HOLOGRAPHIC RISK GAUGE
+   ========================================= */
+.risk-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin-top: 10px;
+}
+
+.gauge-outer {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--risk-color) var(--risk-deg), rgba(255,255,255,0.05) 0deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px -10px var(--risk-color);
+    transition: --risk-deg 1s ease, --risk-color 0.5s ease;
+    position: relative;
+}
+
+.gauge-inner {
+    width: 120px; height: 120px;
+    background: var(--bg-dark);
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 2;
+}
+
+#riskBadge { font-size: 1.8rem; font-weight: 800; color: var(--text); text-shadow: 0 0 10px currentColor; }
+.risk-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+
+/* Leaderboard */
+.drift-list li {
+    padding: 12px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+.drift-list li:hover { background: rgba(255,255,255,0.07); transform: translateX(5px); }
+
+/* =========================================
+   5. REPORT VIEWER (Enterprise Fix)
+   ========================================= */
+/* =========================================
+   REPORT VIEWER (FINAL FIX)
+   ========================================= */
+.report-area { 
+    background-color: #ffffff !important; /* Force White */
+    border-radius: 20px; 
+    overflow: hidden; 
+    position: relative; 
+    height: 100%; 
+    width: 100%;
+    z-index: 10;
+}
+
+iframe { 
+    width: 100%; 
+    height: 100%; 
+    border: none; 
+    display: block;
+    background-color: #ffffff;
+}
+
+/* Ensure States overlay correctly */
+.placeholder-state {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 20; /* Higher than iframe */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.hidden {
+    display: none !important;
+}
+/* =========================================
+   6. EMERGENCY FIXES (Paste at the bottom)
+   ========================================= */
+
+/* 1. Force the .hidden class to actually HIDE things */
+.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    z-index: -999 !important;
+}
+
+/* 2. Force the Report Area to be visible on top */
+.report-area {
+    background-color: white !important;
+    z-index: 10;
+}
+
+iframe {
+    background-color: white !important;
+
+}
+/* Add a simple tooltip wrapper if not using a library */
+[title] {
+    position: relative;
+    cursor: help;
+}
+
+/* Keep your Buttons/Toggles/Loaders from previous step (They are good!) */
+/* ... [INSERT PREVIOUS BUTTON/TOGGLE CSS HERE IF NOT ALREADY PRESENT] ... */
+/* Ensure to include the .btn, .toggleSwitch, .loader CSS from previous response */

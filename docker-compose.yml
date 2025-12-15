@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: modelguard_platform
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite database outside the container
+      - ./modelguard.db:/app/modelguard.db
+      # Allow live reloading during development
+      - ./app:/app/app
+    environment:
+      - APP_ENV=production
+    restart: always
