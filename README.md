@@ -2,1824 +2,675 @@
 
 <div align="center">
 
-# AI Model Quality Analyzer
-
-**A Production-Oriented Machine Learning Monitoring Platform for Data Drift, Target Drift, Fairness Evaluation, and Automated Decision Intelligence**
+**A Production-Oriented ML Observability Platform for Data Drift Detection, Fairness Evaluation, and Rule-Based Recommendations**
 
 ---
 
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
-![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
-![SQLite](https://img.shields.io/badge/SQLite-Database-lightgrey)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![Python Version](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
+[![FastAPI Framework](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com/)
+[![Streamlit UI](https://img.shields.io/badge/Streamlit-Dashboard-red.svg)](https://streamlit.io/)
+[![Docker Compose](https://img.shields.io/badge/Docker-Containerized-blue.svg)](https://www.docker.com/)
+[![SQLite Database](https://img.shields.io/badge/SQLite-Database-lightgrey.svg)](https://www.sqlite.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-ruff-black.svg)](https://github.com/astral-sh/ruff)
 
 </div>
 
 ---
 
-# Table of Contents
-
-- Executive Summary
-- Why This Project Exists
-- Business Problem
-- Objectives
-- Key Features
-- System Overview
-- High-Level Architecture
-- Technology Stack
-- Repository Structure
-- End-to-End Workflow
-- System Components
-- Design Principles
-- Engineering Goals
-- Current Capabilities
-- Project Highlights
-
----
-
 # Executive Summary
 
-Modern Machine Learning systems rarely fail because of poor training.
+The **AI Model Quality Analyzer** is an operational machine learning observability tool designed to audit, evaluate, and track the data quality of deployed machine learning models. Built for single-node deployments, the application consumes reference data (e.g., training baselines) and current production data to identify statistical covariate shift, target distribution drift, and fairness violations across protected groups. 
 
-They fail because the real world changes.
-
-Customer behavior evolves.
-
-Market conditions shift.
-
-Data pipelines introduce unexpected values.
-
-Business processes change.
-
-Regulatory constraints evolve.
-
-Even a highly accurate model eventually becomes unreliable when production data no longer resembles the data used during training.
-
-Most organizations discover this only after business KPIs begin declining.
-
-By that point:
-
-- Predictions have already degraded.
-- Customer trust has been affected.
-- Revenue may already be impacted.
-- Manual investigation becomes expensive.
-
-The objective of this project is to continuously monitor production data, detect meaningful distribution changes, evaluate fairness, estimate operational risk, and generate actionable recommendations before these issues become business problems.
-
-Rather than functioning as another visualization dashboard, this platform is designed as an operational decision-support system that combines statistical analysis, explainability, backend engineering, API development, and automated monitoring into a unified workflow.
-
----
-
-# Why This Project Exists
-
-Machine Learning models are usually evaluated only once during development.
-
-Typical workflow:
-
-```
-Collect Data
-      │
-      ▼
-Train Model
-      │
-      ▼
-Validate Accuracy
-      │
-      ▼
-Deploy Model
-      │
-      ▼
-Production
-```
-
-After deployment, many organizations continue serving predictions without verifying whether the incoming production data still matches the original training distribution.
-
-Unfortunately, production environments are dynamic.
-
-Examples include:
-
-- Customer demographics changing over time
-- Seasonal purchasing behavior
-- Marketing campaigns introducing new traffic
-- Product catalog expansion
-- Sensor calibration changes
-- Data pipeline modifications
-- Missing values introduced after deployment
-- Encoding differences
-- New categorical values
-
-The model itself may remain unchanged while the surrounding environment changes significantly.
-
-Traditional evaluation metrics such as:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-
-cannot identify these production data changes because they require ground truth labels that are often unavailable in real time.
-
-This project focuses on detecting these changes before they impact business outcomes.
-
----
-
-# Business Problem
-
-Imagine a bank deploying a credit approval model.
-
-The model was trained using customer applications collected during the previous year.
-
-Months later:
-
-- Customer income distributions shift.
-- Employment categories change.
-- New customer segments appear.
-- Economic conditions evolve.
-
-The model continues making predictions exactly as before.
-
-No runtime error occurs.
-
-No API failure occurs.
-
-No warning appears.
-
-Everything looks operational.
-
-However, prediction quality gradually deteriorates because the production data no longer resembles the training data.
-
-This phenomenon is commonly known as:
-
-- Data Drift
-- Covariate Shift
-- Target Drift
-- Distribution Drift
-
-Without continuous monitoring, organizations typically discover these issues only after:
-
-- Increased customer complaints
-- Declining conversion rates
-- Reduced model accuracy
-- Financial losses
-- Compliance concerns
-
-This platform continuously compares historical reference data with current production data to identify these problems automatically.
-
----
-
-# Project Objectives
-
-The primary objectives of this system are:
-
-- Detect statistical drift across numerical and categorical features.
-- Evaluate overall dataset stability.
-- Monitor target distribution changes.
-- Identify fairness-related distribution changes.
-- Produce explainable analytical reports.
-- Expose analysis through REST APIs.
-- Provide an interactive visualization dashboard.
-- Support repeatable deployment using Docker.
-- Maintain a modular architecture suitable for future extensions.
-
----
-
-# Key Features
-
-| Capability | Description |
-|------------|-------------|
-| Dataset Drift Detection | Compares historical and current datasets |
-| Feature-Level Analysis | Detects drift independently for every feature |
-| Target Drift Detection | Evaluates changes in prediction targets |
-| Fairness Monitoring | Reviews protected attribute distributions |
-| REST API | FastAPI-based service architecture |
-| Interactive Dashboard | Streamlit visualization interface |
-| Statistical Reporting | Generates Evidently-based reports |
-| Docker Support | Portable deployment |
-| Modular Design | Separation of API, core logic, schemas, utilities, and UI |
-| Environment Configuration | Configurable through `.env` |
-
----
-
-# System Overview
-
-```
-                     Historical Dataset
-                              │
-                              │
-                              ▼
-                   ┌────────────────────┐
-                   │ Reference Dataset  │
-                   └────────────────────┘
-                              │
-                              │
-                              ▼
-
-                  Current Production Dataset
-                              │
-                              ▼
-                   ┌────────────────────┐
-                   │ Current Dataset    │
-                   └────────────────────┘
-                              │
-                              ▼
-
-               Validation & Schema Verification
-                              │
-                              ▼
-
-                  Drift Analysis Engine
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
-
- Dataset Drift        Feature Drift         Target Drift
-
-        ▼                     ▼                     ▼
-
-                 Fairness Evaluation
-                              │
-                              ▼
-
-                 Risk Assessment Layer
-                              │
-                              ▼
-
-               API Response + Dashboard
-```
-
----
-
-# High-Level Architecture
-
-```text
-                        +-----------------------+
-                        |     Streamlit UI      |
-                        +-----------+-----------+
-                                    |
-                                    |
-                          REST API Request
-                                    |
-                                    ▼
-                        +-----------------------+
-                        |      FastAPI API      |
-                        +-----------+-----------+
-                                    |
-                    +---------------+----------------+
-                    |                                |
-                    ▼                                ▼
-          Authentication                    Request Validation
-                    |                                |
-                    +---------------+----------------+
-                                    |
-                                    ▼
-                      Drift Analysis Engine
-                                    |
-         +-------------+------------+------------+
-         |             |                         |
-         ▼             ▼                         ▼
- Dataset Drift   Target Drift        Fairness Evaluation
-         |             |                         |
-         +-------------+------------+------------+
-                                    |
-                                    ▼
-                           Analysis Result
-                                    |
-                                    ▼
-                         JSON Response / UI
-```
-
----
-
-# Technology Stack
-
-## Programming Language
-
-- Python 3.10
-
----
-
-## Backend
-
-- FastAPI
-
-Responsibilities:
-
-- REST APIs
-- Request validation
-- Routing
-- Authentication
-- Response serialization
-
----
-
-## Frontend
-
-- Streamlit
-
-Responsibilities:
-
-- Dataset upload
-- Interactive reports
-- User-friendly visualization
-
----
-
-## Machine Learning Monitoring
-
-- Evidently AI
-
-Used for:
-
-- Dataset drift
-- Feature drift
-- Target drift
-- Statistical comparison
-
----
-
-## Data Processing
-
-- Pandas
-- NumPy
-
-Used for:
-
-- Data loading
-- Cleaning
-- Feature comparison
-- Statistical preprocessing
-
----
-
-## Validation
-
-- Pydantic
-
-Used for:
-
-- Request validation
-- Schema enforcement
-- Data integrity
-
----
-
-## Database
-
-- SQLite
-
-Stores application metadata and persistent records.
-
----
-
-## Containerization
-
-- Docker
-- Docker Compose
-
-Supports reproducible deployment.
-
----
-
-## Testing
-
-- Pytest
-
-Used for automated testing of application components.
-
----
-
-# Repository Structure
-
-```text
-AI-Model-Quality-Analyzer
-│
-├── app
-│   ├── api
-│   ├── core
-│   ├── models
-│   ├── schemas
-│   ├── static
-│   ├── templates
-│   └── main.py
-│
-├── data
-│
-├── scripts
-│
-├── tests
-│
-├── drift_streamlit_app.py
-│
-├── requirements.txt
-│
-├── docker-compose.yml
-│
-├── Dockerfile
-│
-├── .env.example
-│
-└── README.md
-```
-
----
-
-# End-to-End Workflow
-
-```text
-                Upload Reference Dataset
-                           │
-                           ▼
-              Upload Current Dataset
-                           │
-                           ▼
-              Validate Input Structure
-                           │
-                           ▼
-             Compare Both Distributions
-                           │
-                           ▼
-            Run Statistical Drift Tests
-                           │
-                           ▼
-            Evaluate Feature Stability
-                           │
-                           ▼
-             Evaluate Target Stability
-                           │
-                           ▼
-              Evaluate Fairness Metrics
-                           │
-                           ▼
-              Generate Final Assessment
-                           │
-                           ▼
-          Return API Response & Dashboard
-```
-
----
-
-# Core System Components
-
-## 1. FastAPI Backend
-
-Acts as the central orchestration layer responsible for receiving analysis requests, validating uploaded datasets, coordinating statistical analysis, and returning structured responses.
-
----
-
-## 2. Drift Analysis Engine
-
-The analytical core of the application.
-
-Responsibilities include:
-
-- Loading datasets
-- Comparing distributions
-- Running statistical tests
-- Producing drift metrics
-- Summarizing overall dataset stability
-
----
-
-## 3. Validation Layer
-
-Before analysis begins, uploaded datasets undergo structural validation to ensure that required fields and expected formats are available.
-
-This prevents invalid inputs from reaching the analytical pipeline.
-
----
-
-## 4. Fairness Evaluation
-
-Beyond statistical drift, the system evaluates protected attributes to identify distribution changes that may influence downstream fairness assessments.
-
----
-
-## 5. Streamlit Dashboard
-
-Provides an interactive interface allowing users to:
-
-- Upload datasets
-- Trigger analysis
-- Review results
-- Explore generated reports
-
-without interacting directly with backend APIs.
-
----
-
-# Engineering Goals
-
-The project was designed around several engineering principles:
-
-- Separation of concerns
-- Modular architecture
-- Clear API boundaries
-- Maintainable codebase
-- Reusable analytical components
-- Environment-driven configuration
-- Deployment portability
-- Extensible project organization
-
-These principles allow future enhancements without major architectural changes.
-
----
-
-# Current Capabilities
-
-The current implementation supports:
-
-- Reference dataset upload
-- Current dataset upload
-- Dataset validation
-- Statistical drift analysis
-- Feature-level drift reporting
-- Target distribution comparison
-- Fairness-related evaluation
-- REST API interaction
-- Interactive dashboard visualization
-- Docker deployment
-- Environment-based configuration
+Rather than serving purely as a static reporting dashboard, the system processes analysis requests via a key-authenticated FastAPI backend, validates data contracts against strict Pydantic schemas, runs localized statistical evaluations via Evidently AI, evaluates outcome discrepancies using regulatory impact metrics, logs metadata to a local SQLite store, and generates actionable, rules-based operational recommendations.
 
 ---
 
 # Project Highlights
 
-- Modular FastAPI backend
-- Interactive Streamlit frontend
-- Evidently AI integration
-- RESTful API architecture
-- Dataset validation using Pydantic
-- Statistical monitoring pipeline
-- Production-oriented project organization
-- Docker-ready deployment
-- Configurable through environment variables
-- Designed for continuous ML monitoring workflows
+*   **FastAPI REST API**: Authenticated endpoints utilizing header-based validation (`x-api-key`).
+*   **Evidently AI Monitoring**: Automated statistical profiling of continuous and categorical features.
+*   **Fairness Evaluation**: Active screening for disparate impact violations using the regulatory Four-Fifths rule.
+*   **Statistical Drift Detection**: Targeted comparison of input feature and target label distributions.
+*   **Streamlit Dashboard**: A companion user interface for interactive analysis and visual reports.
+*   **Pydantic Data Validation**: Strict column and type validation layers guarding the execution pipeline.
+*   **SQLAlchemy + SQLite**: Local relational database persistence tracking historical run metadata.
+*   **Pytest Suite**: Complete unit, integration, and endpoint routing test coverage.
+*   **Docker Ready**: Simple, containerized orchestration configuration for local multi-service hosting.
 
 ---
 
+###  FastAPI Swagger Interactive Docs (`/docs`)
+*Exposes the fully documented API endpoints, request schemas, and validated JSON response payloads for seamless integration.*
+
+*(FastAPI Swagger UI Screenshot Placeholder)*
+
 ---
 
-# Core System Components
+# High-Level System Architecture
 
-The AI Model Quality Analyzer is composed of several independent modules that work together to evaluate incoming production data, identify statistical drift, assess fairness, estimate operational risk, and generate actionable recommendations.
-
-Each component has a single responsibility, making the system easier to maintain, test, and extend.
-
-```
-                         SYSTEM COMPONENTS
-
-                    ┌─────────────────────────────┐
-                    │     FastAPI REST API        │
-                    └──────────────┬──────────────┘
-                                   │
-                    ┌──────────────▼──────────────┐
-                    │      Request Validation      │
-                    └──────────────┬──────────────┘
-                                   │
-                    ┌──────────────▼──────────────┐
-                    │      Drift Analyzer         │
-                    └──────┬───────────┬──────────┘
-                           │           │
-                 ┌─────────▼───┐   ┌──▼──────────┐
-                 │Fairness Scan│   │Risk Engine  │
-                 └──────┬──────┘   └────┬────────┘
-                        │               │
-                        └──────┬────────┘
-                               │
-                     ┌─────────▼──────────┐
-                     │ Decision Generator │
-                     └─────────┬──────────┘
-                               │
-                     ┌─────────▼──────────┐
-                     │ JSON API Response  │
-                     └────────────────────┘
+```text
+                +------------------+
+                |   Streamlit UI   |
+                +--------+---------+
+                         |
+                         | HTTP Requests (with API Key)
+                         v
+                +------------------+
+                | FastAPI Backend  |
+                +--------+---------+
+                         |
+         +---------------+---------------+
+         |                               |
+         v                               v
+   Drift Engine                   Fairness Engine
+ (Evidently AI)                 (Disparate Impact)
+         |                               |
+         +---------------+---------------+
+                         |
+                         v
+               Recommendation Engine
+            (Rules-Based Alert Matrix)
+                         |
+                         v
+               SQLite Metadata Store
 ```
 
 ---
 
-# End-to-End Workflow
+# Quick Start
 
-The following illustrates how an analysis request moves through the application.
-
-```
-Reference Dataset
-        │
-        ▼
-
-Current Dataset
-        │
-        ▼
-
-Schema Validation
-        │
-        ▼
-
-Statistical Drift Detection
-        │
-        ▼
-
-Feature Analysis
-        │
-        ▼
-
-Fairness Evaluation
-        │
-        ▼
-
-Risk Score Calculation
-        │
-        ▼
-
-Decision Engine
-        │
-        ▼
-
-JSON Report
-```
-
----
-
-# Analysis Pipeline
-
-Each uploaded dataset passes through multiple analytical stages.
-
-```
-STEP 1
-
-Upload CSV Files
-
-      │
-      ▼
-
-STEP 2
-
-Validate Required Columns
-
-      │
-      ▼
-
-STEP 3
-
-Run Evidently Metrics
-
-      │
-      ▼
-
-STEP 4
-
-Compute Feature Drift
-
-      │
-      ▼
-
-STEP 5
-
-Detect Target Drift
-
-      │
-      ▼
-
-STEP 6
-
-Evaluate Fairness
-
-      │
-      ▼
-
-STEP 7
-
-Calculate Risk Score
-
-      │
-      ▼
-
-STEP 8
-
-Generate Recommendation
-
-      │
-      ▼
-
-Return Report
-```
-
----
-
-# API Flow
-
-```
-          Client
-
-             │
-
-             ▼
-
- POST /api/analyze
-
-             │
-
-             ▼
-
- Verify API Key
-
-             │
-
-             ▼
-
- Validate CSV
-
-             │
-
-             ▼
-
- Drift Analyzer
-
-             │
-
-             ▼
-
- Fairness Monitor
-
-             │
-
-             ▼
-
- Decision Engine
-
-             │
-
-             ▼
-
- JSON Response
-```
-
----
-
-# Statistical Drift Detection
-
-The project uses Evidently AI to compare historical reference data against incoming production data.
-
-Instead of relying on a single metric, Evidently automatically selects statistical tests depending on feature type.
-
-Examples include:
-
-| Feature Type | Statistical Method |
-|--------------|-------------------|
-| Numerical | Kolmogorov–Smirnov Test |
-| Numerical | PSI |
-| Numerical | Wasserstein Distance |
-| Categorical | Chi-Square Test |
-| Categorical | Z-Test |
-
-This allows the application to work across different feature distributions while maintaining statistical validity.
-
----
-
-# Drift Analysis Process
-
-```
-Reference Data
-
-Age
-Salary
-Income
-Education
-
-          │
-
-          ▼
-
-Current Data
-
-Age
-Salary
-Income
-Education
-
-          │
-
-          ▼
-
-Compare Distributions
-
-          │
-
-          ▼
-
-Generate Drift Metrics
-
-          │
-
-          ▼
-
-Drift Report
-```
-
----
-
-# Feature-Level Analysis
-
-Instead of only reporting an overall dataset score, every feature is analyzed independently.
-
-Example:
-
-```
-Age
-██████████████
-
-Income
-██████
-
-Occupation
-██
-
-Education
-█████████
-
-Gender
-█
-```
-
-This makes it easier to identify which variables contribute the most to distribution changes.
-
----
-
-# Risk Evaluation
-
-The project converts statistical outputs into operational risk categories.
-
-```
-                  Drift Score
-
-0 ─────────────────────────────────────► 100
-
-Low
-
-██████████
-
-Medium
-
-████████████████████
-
-High
-
-██████████████████████████████
-```
-
-Higher drift scores indicate greater divergence from the reference dataset.
-
----
-
-# Decision Pipeline
-
-```
-Drift Analysis
-
-        │
-
-        ▼
-
-Is Drift Detected?
-
-        │
-
-   ┌────┴─────┐
-
-  NO         YES
-
-  │            │
-
-  ▼            ▼
-
-Healthy     Evaluate Severity
-
-               │
-
-               ▼
-
-     Calculate Risk Score
-
-               │
-
-               ▼
-
-     Generate Recommendation
-```
-
----
-
-# Fairness Evaluation
-
-The project also evaluates fairness across protected attributes.
-
-The fairness module computes disparate impact ratios to identify whether prediction outcomes differ significantly across demographic groups.
-
-Workflow:
-
-```
-Protected Feature
-
-        │
-
-        ▼
-
-Group Statistics
-
-        │
-
-        ▼
-
-Outcome Ratios
-
-        │
-
-        ▼
-
-Disparate Impact
-
-        │
-
-        ▼
-
-Fairness Result
-```
-
----
-
-# Data Validation Layer
-
-Before analysis begins, uploaded datasets are validated.
-
-```
-CSV Upload
-
-      │
-
-      ▼
-
-Required Columns?
-
-      │
-
- ┌────┴─────┐
-
-YES         NO
-
- │           │
-
- ▼           ▼
-
-Continue   Validation Error
-```
-
-Validation prevents incomplete datasets from entering the analysis pipeline.
-
----
-
-# Security Architecture
-
-Authentication is handled using API Key validation.
-
-```
-Client
-
-   │
-
-   ▼
-
-Request
-
-   │
-
-   ▼
-
-x-api-key Header
-
-   │
-
-   ▼
-
-Compare Against
-
-Environment Variable
-
-   │
-
- ┌─┴───────┐
-
-Valid     Invalid
-
- │           │
-
- ▼           ▼
-
-Allow     HTTP 401
-```
-
----
-
-# FastAPI Architecture
-
-```
-Browser
-
-    │
-
-    ▼
-
-FastAPI
-
-    │
-
-    ▼
-
-Routing Layer
-
-    │
-
-    ▼
-
-Business Logic
-
-    │
-
-    ▼
-
-Analysis Engine
-
-    │
-
-    ▼
-
-Response Model
-
-    │
-
-    ▼
-
-JSON Output
-```
-
----
-
-# Model Health Evaluation
-
-The final health status combines multiple analytical outputs.
-
-```
-Feature Drift
-        │
-
-Target Drift
-        │
-
-Fairness
-        │
-
-Risk Score
-        │
-
-──────────────
-
-Overall Health
-```
-
-Possible outcomes include:
-
-- Stable
-- Monitor
-- High Risk
-
----
-
-# Technology Stack
-
-| Layer | Technology |
-|--------|------------|
-| Backend | FastAPI |
-| Frontend | HTML, CSS, JavaScript |
-| Validation | Pydantic |
-| Data Processing | Pandas |
-| Machine Learning Utilities | Scikit-Learn |
-| Statistical Analysis | Evidently AI |
-| Database | SQLite |
-| Testing | Pytest |
-| Deployment | Docker |
-
----
-
-# Design Principles
-
-The project follows several software engineering principles throughout its implementation.
-
-```
-Single Responsibility
-
-↓
-
-Loose Coupling
-
-↓
-
-Modular Components
-
-↓
-
-Reusable Services
-
-↓
-
-Dependency Injection
-
-↓
-
-Testable Architecture
-```
-
-These principles improve maintainability while making future enhancements easier to integrate.
-
----
-
-# Engineering Goals
-
-This project was designed with the following objectives:
-
-- Detect production data drift automatically.
-- Provide statistically grounded analysis.
-- Generate actionable operational recommendations.
-- Monitor fairness alongside traditional drift metrics.
-- Expose functionality through a RESTful API.
-- Maintain modular and testable architecture.
-- Support reproducible local deployment.
-
-# Part 3 — Engineering Design, API Reference, Deployment, Testing, Performance & Future Roadmap
-
-> Continue directly after **Part 2**. This section intentionally avoids repeating previously documented concepts while providing deeper engineering documentation expected in production-grade repositories.
-
----
-
-# Engineering Decisions
-
-Every architectural decision in this project was made to keep the system modular, maintainable, and easy to extend. Rather than tightly coupling every component together, responsibilities are separated into independent layers so that individual modules can evolve without impacting the entire application.
-
-The project follows a service-oriented backend architecture where each component performs one clearly defined responsibility.
-
-```
-                    User Request
-                         │
-                         ▼
-                 FastAPI Route Layer
-                         │
-         ┌───────────────┼───────────────┐
-         ▼               ▼               ▼
- Validation        Authentication     File Parsing
-         │
-         ▼
-     Drift Engine
-         │
-         ▼
- Decision Engine
-         │
-         ▼
- Database + Registry
-         │
-         ▼
-    JSON Response
-```
-
-This separation reduces code duplication while making testing considerably easier.
-
----
-
-# Backend Workflow
-
-The lifecycle of a complete analysis request follows the pipeline below.
-
-```
-Reference CSV
-        │
-        ▼
-Data Validation
-        │
-        ▼
-Current CSV
-        │
-        ▼
-Preprocessing
-        │
-        ▼
-Evidently Analysis
-        │
-        ▼
-Feature Statistics
-        │
-        ▼
-Fairness Analysis
-        │
-        ▼
-Risk Scoring
-        │
-        ▼
-Decision Engine
-        │
-        ▼
-Database Logging
-        │
-        ▼
-REST Response
-```
-
-Every stage produces structured outputs that are consumed by the next stage without requiring duplicated processing.
-
----
-
-# Internal Module Responsibilities
-
-```
-app/
-│
-├── api/
-│      Handles REST endpoints
-│
-├── core/
-│      Core business logic
-│
-├── database/
-│      Persistence layer
-│
-├── models/
-│      SQLAlchemy models
-│
-├── static/
-│      Frontend assets
-│
-├── templates/
-│      HTML templates
-│
-└── main.py
-       Application entrypoint
-```
-
----
-
-## Route Layer
-
-Responsibilities include:
-
-* Accepting uploaded datasets
-* Validating request structure
-* API authentication
-* Returning JSON responses
-* Dependency injection
-
-The route layer intentionally contains minimal business logic.
-
----
-
-## Drift Engine
-
-The drift engine performs the analytical workload.
-
-Responsibilities include:
-
-* Statistical comparison
-* Drift metrics
-* Dataset summary
-* Column analysis
-* Feature ranking
-* Target drift detection
-
-It does not perform authentication, persistence, or UI rendering.
-
----
-
-## Fairness Module
-
-The fairness module independently evaluates protected attributes.
-
-Responsibilities include:
-
-* Protected attribute detection
-* Group comparison
-* Disparate Impact calculation
-* Threshold evaluation
-* Bias reporting
-
-This separation allows fairness logic to evolve independently from drift logic.
-
----
-
-## Decision Engine
-
-Rather than exposing only raw statistics, the project converts statistical outputs into actionable operational decisions.
-
-Example flow:
-
-```
-High Feature Drift
-        │
-        ▼
-Weighted Risk Score
-        │
-        ▼
-Decision Rules
-        │
-        ▼
-Recommended Action
-```
-
-Possible actions include:
-
-* Continue Monitoring
-* Investigate
-* Fine Tune
-* Retrain
-* Rollback
-
----
-
-# REST API
-
-## Health Endpoint
-
-```
-GET /
-```
-
-Returns application availability.
-
-Example Response
-
-```json
-{
-    "status": "running"
-}
-```
-
----
-
-## Analyze Endpoint
-
-```
-POST /api/analyze
-```
-
-Uploads two datasets and performs complete analysis.
-
-### Required Inputs
-
-| Parameter         | Description             |
-| ----------------- | ----------------------- |
-| Reference Dataset | Training distribution   |
-| Current Dataset   | Production distribution |
-| API Key           | Authentication          |
-
----
-
-Example Request
-
-```
-POST /api/analyze
-
-Headers
-
-x-api-key
-
-Body
-
-reference.csv
-current.csv
-```
-
----
-
-Example Response
-
-```json
-{
-    "overall_drift": true,
-    "risk_level": "High",
-    "decision": "Retrain Recommended",
-    "feature_summary": [],
-    "fairness": {}
-}
-```
-
----
-
-# Request Processing Timeline
-
-```
-Receive Request
-        │
-        ▼
-Validate Files
-        │
-        ▼
-Authenticate
-        │
-        ▼
-Load DataFrames
-        │
-        ▼
-Run Analysis
-        │
-        ▼
-Calculate Metrics
-        │
-        ▼
-Store Results
-        │
-        ▼
-Return JSON
-```
-
----
-
-# Authentication
-
-The API uses header-based authentication.
-
-```
-x-api-key
-```
-
-Configuration is loaded from environment variables.
-
-```
-.env
-
-API_KEY=xxxxxxxx
-```
-
-Validation occurs before any expensive computation begins, preventing unnecessary resource usage.
-
----
-
-# Error Handling
-
-The application returns meaningful HTTP responses.
-
-| Status | Meaning               |
-| ------ | --------------------- |
-| 200    | Success               |
-| 400    | Invalid Input         |
-| 401    | Unauthorized          |
-| 404    | Resource Not Found    |
-| 422    | Validation Error      |
-| 500    | Internal Server Error |
-
----
-
-# Validation Pipeline
-
-```
-CSV Upload
-      │
-      ▼
-File Exists
-      │
-      ▼
-Correct Format
-      │
-      ▼
-Schema Validation
-      │
-      ▼
-Column Validation
-      │
-      ▼
-Accepted
-```
-
-Early validation prevents downstream failures and provides immediate feedback.
-
----
-
-# Performance Considerations
-
-Several implementation choices were made to keep analysis responsive.
-
-### Efficient Data Loading
-
-CSV files are read only once before processing.
-
----
-
-### Minimal Route Logic
-
-The API layer delegates computation to the service layer rather than embedding complex business logic inside endpoints.
-
----
-
-### Modular Components
-
-Independent modules reduce unnecessary coupling and simplify future optimization.
-
----
-
-### Structured Responses
-
-Only required analytical results are returned instead of serializing unnecessary intermediate objects.
-
----
-
-# Database Responsibilities
-
-The persistence layer stores application state.
-
-Typical responsibilities include:
-
-```
-Analysis History
-
-↓
-
-Decision Records
-
-↓
-
-Model Information
-
-↓
-
-Rollback Events
-
-↓
-
-Metadata
-```
-
-Keeping these records allows historical comparison between analyses.
-
----
-
-# Configuration
-
-Application behavior is controlled through environment variables.
-
-Example
-
-```
-APP_ENV=production
-
-LOG_LEVEL=info
-
-DATABASE_URL=sqlite:///./modelguard.db
-
-API_KEY=xxxxxxxx
-```
-
-Using environment variables avoids hardcoding deployment-specific values into source code.
-
----
-
-# Deployment
-
-The application can run locally or inside containers.
-
-```
-Developer Machine
-
-↓
-
-Python Environment
-
-↓
-
-FastAPI
-
-↓
-
-Application
-```
-
-or
-
-```
-Docker
-
-↓
-
-Container
-
-↓
-
-FastAPI
-
-↓
-
-Application
-```
-
-Containerization ensures consistent execution across environments.
-
----
-
-# Running the Project
-
-Install dependencies
-
+### 1. Install Dependencies
+Clone the repository, create a virtual environment, and install dependencies:
 ```bash
+git clone https://github.com/YourUsername/AI-model-quality-analyzer.git
+cd AI-model-quality-analyzer
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Run the backend
-
+### 2. Configure Environment
+Generate your environment variables file and configure your API key:
 ```bash
-uvicorn app.main:app --reload
+cp .env.example .env
+# Verify the default key or set your own inside the .env file:
+# API_KEY=my-local-dev-key-12345
 ```
 
-Run the Streamlit interface
+### 3. Fetch Baseline Data & Baseline Models
+Download the sample datasets and generate the baseline model run parameters:
+```bash
+python scripts/download_data.py
+python scripts/train_model.py
+```
 
+### 4. Run the API Backend
+Start the FastAPI server on localhost:
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+### 5. Launch the Dashboard
+In a separate terminal window, launch your Streamlit front end:
 ```bash
 streamlit run drift_streamlit_app.py
 ```
+Open [http://localhost:8501](http://localhost:8501) in your browser to execute and visualize your data audits.
+
+---
+
+# The Problem: Silent Model Degradation
+
+Once a machine learning model leaves the controlled environment of training and enters production, its predictive accuracy begins to decay. Unlike traditional software services, which typically alert teams via stack traces, out-of-memory errors, or API timeouts, machine learning models fail silently. A loan classifier, fraud detector, or pricing system will continue to return confident predictions (HTTP 200 OK) even if the underlying distribution of inputs has completely shifted.
+
+```text
+Traditional Software Failure:
+Input Data ──► [ Bug / Schema Error ] ──► HTTP 500 / Exception (Loud Failure)
+
+Machine Learning Silent Failure:
+Drifted Input ──► [ Model Engine ] ──► Confident Wrong Prediction (Silent Failure)
+```
+
+Silent degradation is caused by several factors:
+- **Covariate Shift**: The distribution of input features changes over time (e.g., shifts in average customer income or changing macro-economic conditions).
+- **Concept Drift**: The relationship between model inputs and targets changes (e.g., historical default rates for specific debt ratios no longer reflect current realities).
+- **Data Quality Issues**: Upstream ETL pipelines introduce unexpected nulls, zero values, or encoding formats that the model was not trained to handle.
+- **Fairness Divergence**: A stable model can systematically develop biases against protected classes if the relationship between demographic features and target variables changes.
+
+By the time downstream business metrics show a visible decline, inaccurate predictions may have been served for weeks. This platform is engineered to detect these silent failures early, flagging statistical anomalies before they impact the business bottom line.
+
+---
+
+# System Scope & Capabilities
+
+This service is engineered to be a lightweight, self-contained analytical and metadata logging server. To prevent architectural overclaiming, its functional scope is defined below:
+
+*   **Implemented**: Structured statistical monitoring of numerical and categorical variables, disparate impact fairness evaluation, API-based analytics orchestration, localized SQLite metadata logging, and a lightweight local registry state tracker storing evaluation metrics.
+*   **Not Implemented (Out of Scope)**: Distributed message streaming (Kafka/RabbitMQ), persistent model hosting/serving, distributed background task queues (Celery/Redis), dynamic cluster scaling (Kubernetes/Helm), or cloud object storage.
+
+---
+
+# Folder-by-Folder Codebase Explanation
+
+The system is organized with strict separation of concerns, decoupling presentation code, REST routing, validation logic, and numerical evaluation.
+
+```text
+AI-model-quality-analyzer/
+│
+├── .github/
+│   └── workflows/
+│       ├── deploy.yml          <-- Automation script running Docker builds
+│       └── testing.yml         <-- CI test pipeline executing style checks & pytest
+│
+├── app/
+│   ├── api/
+│   │   └── routes.py           <-- FastAPI endpoints, payload parsing, and Dependency Injection
+│   │
+│   ├── core/
+│   │   ├── analyzer.py         <-- Coordination module matching schema validation to analytical output
+│   │   ├── config.py           <-- Configuration file loading thresholds from environmental files
+│   │   ├── database.py         <-- SQLAlchemy engine config, SessionLocal generator, and metadata runs
+│   │   ├── drift_engine.py     <-- Evidently report wrapper extracting statistical drift metrics & target drift
+│   │   ├── fairness.py         <-- Statistical module for disparate impact ratio and 4/5ths rule calculation
+│   │   ├── registry.py         <-- Local file storing model evaluation history and recommendation metadata
+│   │   └── schemas.py          <-- Data validation contracts (Pydantic model of AdultCensus)
+│   │
+│   └── main.py                 <-- Service entry point configuring CORS, standard logs, and API routes
+│
+├── data/                       <-- SQLite database storage, plus local baseline reference CSVs
+│
+├── scripts/                    <-- Local utilities for data downloads and initial baseline training runs
+│
+├── tests/                      <-- Complete Pytest suite covering unit, integration, and endpoint contracts
+│
+├── drift_streamlit_app.py      <-- Interactive user interface written in Streamlit
+│
+├── Dockerfile                  <-- Container runtime specification preparing the execution environment
+│
+├── docker-compose.yml          <-- Multi-container definition packaging the API service and UI
+│
+├── requirements.txt            <-- Pinned package requirements ensuring environment reproducibility
+│
+└── .env.example                <-- Template defining required environmental variables
+```
+
+---
+
+# Request Lifecycle & Core Logic
+
+Every analysis request is received, validated, and processed sequentially:
+
+```text
+CSV Data ──► Input Validation ──► Preprocessing ──► Statistical Tests ──► Risk Score ──► Recommendation
+```
+
+Individual feature variables are profiled step-by-step to identify structural changes:
+
+```text
+Feature Column ──► Check Missing Values ──► Distribution Check ──► Run Drift Test ──► Result Output
+```
+
+---
+
+# Architectural Decisions & Technology Rationale
+
+1. **Why FastAPI over Flask or Django?**
+   FastAPI provides asynchronous request handling capability, although the analytical pipeline executes synchronously because Evidently and pandas perform CPU-bound operations. This native async request boundary protects the I/O event loop during heavy concurrent file uploads. Additionally, native Pydantic integration guarantees automated type enforcement and schema documentation.
+
+2. **Why Evidently AI for Drift Monitoring?**
+   Rather than manually writing custom statistical routines for every feature type, Evidently AI acts as a mature, tested core. It profiles columns automatically, distinguishing between continuous numeric variables and discrete categorical labels, and applies appropriate algorithms (such as Kolmogorov-Smirnov, Population Stability Index, or Chi-Square tests) based on data characteristics.
+
+3. **Why SQLite over PostgreSQL or MongoDB for Metadata Storage?**
+   Since this service runs as a self-contained, single-node analysis helper, SQLite offers robust ACID compliance via a standard file, with zero external database processes to manage. This simplifies local and containerized development. The database engine utilizes SQLAlchemy, which decouples the queries from SQLite, allowing for a straightforward transition to PostgreSQL if horizontal scaling becomes a future requirement.
+
+4. **Why Streamlit for Dashboarding?**
+   Streamlit enables developers to build data-focused user interfaces completely in Python. This allows the frontend to easily share model schemas, helper methods, and metrics directly with the backend code, eliminating the need to maintain a separate JavaScript framework (such as React or Vue) for simple internal dashboarding.
+
+---
+
+# Design Patterns Used
+
+- **Dependency Injection (DI)**: In `routes.py`, database sessions (`db`) and the local model recommendation tracking class (`registry`) are provided through FastAPI's `Depends()`. This pattern keeps route declarations loosely coupled to specific database instances, making it easy to swap them with SQLite memory databases or mock containers during unit testing.
+- **Data Transfer Object (DTO)**: Data exchange across API routes and analysis methods is mediated by Pydantic schema models. This ensures that only validated data payloads pass between core business logic and presentation layers.
+- **Repository Pattern (via SQLAlchemy)**: Database access is handled through object-relational mapping models, decoupling raw SQL commands from SQLite. This structure protects queries from database-specific syntax changes and simplifies future migrations to other relational systems.
+- **Separation of Concerns (SoC)**: Data contracts (the validation logic), and mathematical analysis (the drift calculations) are isolated in separate modules. Changes in statistical thresholds do not affect database structures, and database updates do not alter route endpoints.
+
+---
+
+# Logical Metadata Schema
+
+The SQLite database acts as a metadata repository, logging historical analysis requests. Below is the relational structure of the local metadata storage:
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                 runs                                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ id (INTEGER, PK) ────────────────────────────────────────────────────────┐   │
+│ reference_shape (VARCHAR)                                                │   │
+│ current_shape (VARCHAR)                                                  │   │
+│ overall_drift (BOOLEAN)                                                  │   │
+│ risk_level (VARCHAR)                                                     │   │
+│ decision (VARCHAR)                                                       │   │
+│ analyzed_at (TIMESTAMP)                                                  │   │
+└──────────────────────────────────────────────────────────────────────────┼───┘
+                                                                           │
+                                                                           ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           feature_metrics                                    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ id (INTEGER, PK)                                                             │
+│ run_id (INTEGER, FK -> runs.id) ◄────────────────────────────────────────────┘
+│ feature_name (VARCHAR)                                                       │
+│ metric_name (VARCHAR)                                                        │
+│ drift_score (FLOAT)                                                          │
+│ drift_detected (BOOLEAN)                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **`runs` Table**: Logs overall operational metadata for each execution. It captures file profiles (shapes), overall stability verdicts, risk assessments, and the final state recommendations.
+- **`feature_metrics` Table**: Stores the feature-by-feature statistical outcomes generated by Evidently AI for each run. This structured data is used to populate feature ranking tables and track quality trends over time.
+
+---
+
+# Core System Logic & Pipelines
+
+## Data Validation Layer
+
+Before running statistical comparisons, the system validates the incoming CSV files. If either dataset fails schema validation, the request is rejected immediately, preventing downstream statistical errors.
+
+The validation schema is configured to a structure modeled around the **Adult Census** dataset. 
+
+```python
+# app/core/schemas.py
+from pydantic import BaseModel, Field
+
+class AdultCensusRow(BaseModel):
+    age: int = Field(..., ge=17, le=90)
+    workclass: str
+    education: str
+    marital_status: str = Field(..., alias="marital-status")
+    occupation: str
+    relationship: str
+    race: str
+    sex: str
+    hours_per_week: int = Field(..., alias="hours-per-week", ge=1, le=99)
+    native_country: str = Field(..., alias="native-country")
+    income: str
+```
+
+*Note: In production deployments, this schema should be dynamically configurable to support monitoring of arbitrary datasets.*
+
+---
+
+## Statistical Drift Detection Engine
+
+The system uses Evidently AI's data profiling suite to evaluate distribution changes between your baseline and current production datasets.
+
+```text
+                       COLUMN PROFILING PIPELINE
+                      ┌──────────────────────────┐
+                      │    Input Pandas Series   │
+                      └────────────┬─────────────┘
+                                   │
+                      ┌────────────▼─────────────┐
+                      │ Is Variable Continuous?  │
+                      └────────────┬─────────────┘
+                                   │
+                ┌──────────────────┴──────────────────┐
+                ▼ (Yes)                               ▼ (No)
+   Numerical Distribution                 Categorical Distribution
+                │                                     │
+   ┌────────────▼─────────────┐          ┌────────────▼─────────────┐
+   │ Kolmogorov-Smirnov Test  │          │      Chi-Square Test     │
+   │   (Compares CDF curves)  │          │   (Compares frequencies) │
+   └──────────────────────────┘          └──────────────────────────┘
+```
+
+The analyzer runs these algorithms to evaluate drift:
+- **Numerical Features (Kolmogorov-Smirnov Test)**: Compares the empirical cumulative distribution functions (CDFs) of your continuous variables. If the maximum distance ($D$) between CDFs exceeds the critical threshold defined by the significance level ($\alpha=0.05$), the feature is flagged as drifted.
+- **Categorical Features (Chi-Square Test)**: Evaluates the categorical frequencies between datasets. If the calculated $\chi^2$ statistic yields a $p$-value lower than $0.05$, the category distribution is flagged as drifted.
+
+---
+
+## Target & Label Drift Monitoring
+
+Changes in your input features are only part of the story; monitor shifts in the predicted labels and true values as well. A change in the target variable's distribution is a strong indicator of concept drift, suggesting that your model's underlying assumptions may have broken down.
+
+```text
+               Target Variable: Z-Test for Proportions
+                ┌───────────────────────────────────┐
+                │ Baseline Outcome Rate (e.g., 20%) │
+                └─────────────────┬─────────────────┘
+                                  │ (Statistical Compare)
+                                  ▼
+                ┌───────────────────────────────────┐
+                │ Production Outcome Rate (e.g.,90%)│
+                └─────────────────┬─────────────────┘
+                                  │
+                                  ▼
+                     p-value Calculation (< 0.05)
+                                  │
+                                  ▼
+                        Target Drift Detected
+```
+
+The system evaluates categorical target shifts using a two-sample Z-test for proportions, flagging structural anomalies if the resulting $p$-value falls below $0.05$.
+
+---
+
+## Fairness Evaluation (Four-Fifths Rule)
+
+The system includes a dedicated fairness monitor that evaluates prediction outcomes for potential demographic bias. The fairness engine uses the **Four-Fifths Rule** (or Disparate Impact Ratio), a standard metric in regulatory compliance and employment law.
+
+The disparate impact ratio ($DIR$) is defined as:
+
+$$DIR = \frac{P(\hat{Y} = 1 \mid \text{Protected Group} = 1)}{P(\hat{Y} = 1 \mid \text{Reference Group} = 0)}$$
+
+```text
+             Protected Attribute: Gender (Disparate Impact)
+                ┌───────────────────────────────────┐
+                │ Positive Rate: Female (e.g., 10%) │
+                └─────────────────┬─────────────────┘
+                                  │ (Ratio Division)
+                                  ▼
+                ┌───────────────────────────────────┐
+                │  Positive Rate: Male (e.g., 40%)  │
+                └─────────────────┬─────────────────┘
+                                  │
+                                  ▼
+                     Disparate Impact = 0.25
+                                  │
+                                  ▼
+                   Bias Flagged (0.25 < 0.80 Limit)
+```
+
+The fairness monitor raises a flag if the disparate impact ratio falls below $0.80$, signaling that predictions differ significantly across demographic groups. To prevent false positives, a minimum group size threshold is enforced ($N \ge 50$ rows). Smaller populations are excluded from the fairness audit to avoid flagging minor statistical fluctuations.
+
+---
+
+## Rules-Based Recommendation Engine
+
+Instead of simply reporting raw statistics, the analyzer processes metrics through a rules-based recommendation engine. The engine evaluates the statistical results in order of severity to log operational recommendations:
+
+```text
+                                  ┌───────────────────────────┐
+                                  │   Start Decision Engine   │
+                                  └─────────────┬─────────────┘
+                                                │
+                                                ▼
+                                  ┌───────────────────────────┐
+                                  │ Evaluate Fairness Violate │
+                                  └─────────────┬─────────────┘
+                                                │
+                               ┌────────────────┴────────────────┐
+                               ▼ (Yes)                           ▼ (No)
+                ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                │ RECOMMEND: BLOCK DEPLOYMENT │   │ Is Target Drift Detected?   │
+                └─────────────────────────────┘   └─────────────┬─────────────┘
+                                                                │
+                                               ┌────────────────┴────────────────┐
+                                               ▼ (Yes)                           ▼ (No)
+                                ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                                │ RECOMMEND: STATE REVERT     │   │ Evaluate Feature Drift %    │
+                                └─────────────────────────────┘   └─────────────┬─────────────┘
+                                                                                │
+                                                               ┌────────────────┴────────────────┐
+                                                               ▼ (> 50% Columns)                 ▼ (<= 50% Columns)
+                                                ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                                                │ RECOMMEND: RETRAIN MODEL    │   │ RECOMMEND: CONTINUE MONITOR │
+                                                └─────────────────────────────┘   └─────────────────────────────┘
+```
+
+The local registry module (`registry.py`) acts as a historical log storage file, committing model version details and recommended model states inside local metadata database tables.
+
+---
+
+# API Reference & Usage Examples
+
+The FastAPI service exposes endpoints for service checkouts and dataset audits.
+
+### Service Health
+```bash
+curl -X GET "http://localhost:8000/"
+```
+
+**Expected Response (200 OK):**
+```json
+{
+  "status": "running"
+}
+```
+
+---
+
+### Dataset Analysis
+```bash
+curl -X POST "http://localhost:8000/api/analyze" \
+  -H "x-api-key: my-local-dev-key-12345" \
+  -F "reference=@data/adult_census_reference.csv" \
+  -F "current=@data/adult_census_current.csv"
+```
+
+**Expected Response (200 OK):**
+```json
+{
+  "status": "success",
+  "overall_drift": true,
+  "risk_level": "High",
+  "decision": "Retrain Recommended",
+  "dataset_summary": {
+    "reference_shape": [15000, 11],
+    "current_shape": [15000, 11],
+    "drifted_features_count": 6,
+    "total_features_count": 10,
+    "drift_share": 0.6
+  },
+  "feature_summary": [
+    {
+      "feature_name": "age",
+      "drift_score": 0.00001,
+      "drift_detected": true
+    },
+    {
+      "feature_name": "hours-per-week",
+      "drift_score": 0.0012,
+      "drift_detected": true
+    }
+  ],
+  "fairness": {
+    "protected_attribute": "sex",
+    "disparate_impact_ratio": 0.82,
+    "violation_detected": false
+  },
+  "target_drift": {
+    "target_name": "income",
+    "p_value": 0.124,
+    "drift_detected": false
+  }
+}
+```
+
+---
+
+# Docker Container Configuration
+
+The system is containerized using standard Docker runtime files to ensure predictable setups on different host machines.
+
+The included `docker-compose.yml` file configures local networking to connect our FastAPI backend with our Streamlit user interface:
+
+```yaml
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY=my-local-dev-key-12345
+      - APP_ENV=development
+    volumes:
+      - ./data:/app/data
+
+  frontend:
+    build: .
+    ports:
+      - "8501:8501"
+    command: streamlit run drift_streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+```
+
+---
+
+# CI Pipeline (GitHub Actions Specification)
+
+The repository includes standard GitHub Action workflows designed to execute style guidelines and run pytest on every pull request.
+
+- **`.github/workflows/deploy.yml`**: Validates the build path by testing whether the Docker configuration compiles correctly on a standardized Ubuntu runner.
+- **`.github/workflows/testing.yml`**: Resolves python dependencies, installs system prerequisites (such as `libgomp1` to support scientific libraries), fetches data baselines, and executes the Pytest suite.
 
 ---
 
 # Testing Strategy
 
-The project follows a layered testing approach.
+The project features tests split across three strategic levels of concern:
 
-```
-Unit Tests
-      │
-      ▼
-Integration Tests
-      │
-      ▼
-API Tests
-      │
-      ▼
-End-to-End Validation
-```
-
-Each layer validates different responsibilities within the application.
+- **Unit Testing**: Tests core mathematical utilities in isolation. It verifies the fairness monitor's division-by-zero protection when target columns contain only single-class labels, and checks that small populations are correctly excluded from audits.
+- **Integration Testing**: Validates cooperation between our analysis layers and the Evidently AI library. These tests pass real dataframes through the system to ensure that calculations and thresholds are evaluated correctly.
+- **Endpoint Routing & Dependency Injection Tests**: Uses FastAPI's `TestClient` and `dependency_overrides` to run endpoint tests. This allows us to test authentication and validation layers using mock SQLite instances, keeping the test database clean.
 
 ---
 
-## Unit Testing
+# Estimated Operational Characteristics
 
-Focuses on individual business logic components.
-
-Examples include:
-
-* Drift calculations
-* Decision logic
-* Fairness calculations
-* Utility functions
+Memory usage increases with dataset size because pandas and Evidently maintain intermediate in-memory structures during analysis. Practical limits depend on available system memory and dataset characteristics. For processing very large datasets, it is recommended to apply an initial random sampling stage before uploading data to the `/analyze` endpoint to manage memory requirements on single-node setups.
 
 ---
 
-## Integration Testing
+# Security Best Practices
 
-Validates interaction between modules.
+The system includes several security controls designed to safeguard local operations:
 
-Examples include:
-
-* Drift engine with Evidently
-* Database interactions
-* Registry operations
+1. **Fail-Closed API Authentication**: If the server starts and the `API_KEY` environmental variable is empty or unset, the system defaults to a secure state. It rejects all incoming requests with an HTTP 500 configuration error, preventing unauthenticated access due to configuration mistakes.
+2. **Standard Headers & CORS Controls**: Standard CORS policies are set up inside `main.py`, restricting allowed origins to the frontend's specific port to prevent cross-site scripting vulnerabilities.
+3. **Local Database Isolation**: The SQLite metadata file is located in a protected data directory with access permissions restricted to the application's runtime system process.
 
 ---
 
-## API Testing
+# Monitoring & Logging Strategy
 
-Ensures endpoints behave correctly.
+Operation logging is handled through Python’s standard logging utility, using a structured formatting template to capture execution events:
 
-Checks include:
-
-* Authentication
-* Response codes
-* Request validation
-* Error handling
-
----
-
-# Logging
-
-The application records important operational events.
-
-```
-Application Startup
-
-↓
-
-API Requests
-
-↓
-
-Analysis Started
-
-↓
-
-Analysis Completed
-
-↓
-
-Decision Generated
-
-↓
-
-Errors
+```text
+LOG FORMAT:
+[timestamp] | [log-level] | [module_name] | [transaction_id] | message
 ```
 
-Logging assists debugging and operational monitoring.
+Key operational events are logged sequentially to provide clear tracing during troubleshooting:
 
----
-
-# Scalability Considerations
-
-The architecture allows several future enhancements without major redesign.
-
-Examples include:
-
-```
-Current
-
-Single FastAPI Instance
-
-↓
-
-Future
-
-Multiple API Instances
-
-↓
-
-Load Balancer
-
-↓
-
-Shared Database
-
-↓
-
-Distributed Workers
-```
-
-Because analysis logic is isolated from presentation logic, scaling individual components becomes significantly easier.
-
----
-
-# Extensibility
-
-The project was intentionally structured to allow new capabilities with minimal code changes.
-
-Potential extensions include:
-
-* Additional drift metrics
-* New statistical tests
-* Custom fairness metrics
-* New model registries
-* Cloud storage integration
-* Automated notifications
-* Scheduled monitoring jobs
-* Dashboard enhancements
-
-The modular design reduces the amount of refactoring required for future expansion.
-
----
-
-# Project Highlights
-
-```
-✓ FastAPI Backend
-
-✓ REST Architecture
-
-✓ Evidently Integration
-
-✓ Modular Design
-
-✓ Authentication Layer
-
-✓ Fairness Evaluation
-
-✓ Drift Detection
-
-✓ Decision Engine
-
-✓ Model Registry
-
-✓ Streamlit Interface
-
-✓ SQLite Persistence
-
-✓ Environment Configuration
-
-✓ Docker Support
-
-✓ Automated Testing
+```text
+[2026-07-14 21:35:04] | INFO | app.main | [system] | FastAPI service initialized on Port 8000
+[2026-07-14 21:36:12] | INFO | app.api  | [txn_485] | POST /api/analyze request received
+[2026-07-14 21:36:13] | INFO | app.core | [txn_485] | Schema validation passed. Shape: (15000, 11)
+[2026-07-14 21:36:15] | INFO | app.core | [txn_485] | Analysis complete. Metrics: 6/10 columns drifted
+[2026-07-14 21:36:15] | WARN | app.core | [txn_485] | Decision generated: Retrain Recommended (Score: 60)
+[2026-07-14 21:36:15] | INFO | app.api  | [txn_485] | Run ID 142 committed to metadata storage
 ```
 
 ---
 
-# Conclusion
+# Project Limitations
 
-This project demonstrates the implementation of an end-to-end machine learning monitoring service focused on production data quality. It combines statistical drift detection, fairness evaluation, automated decision support, secure API design, and modular software engineering practices into a unified application.
+Every engineering project has architectural trade-offs. The limitations of the current design are documented below:
 
-The implementation emphasizes maintainability through layered architecture, separation of concerns, reusable components, and structured workflows. By combining analytical capabilities with operational decision-making, the system provides a foundation for monitoring machine learning models beyond initial deployment while remaining extensible for future enhancements and additional monitoring capabilities.
+- **Hardcoded Schema Validation**: The validation schema in `app/core/schemas.py` is configured to a single dataset structure. If a user uploads datasets from another domain, the data validation layer will reject them.
+- **In-Memory Pandas Processing**: Because data is loaded entirely into memory, large datasets can cause out-of-memory failures depending on single-node hardware limitations.
+- **Single API Key Authentication**: The authentication layer uses a single shared secret key, making it unsuitable for multi-tenant environments that require individual keys, access scopes, or audit histories.
+
+---
+
+# Planned Future Improvements
+
+To transition this platform from a single-node utility into an automated ML observability platform, the following structural improvements are planned:
+
+```text
+       CURRENT SYSTEM                          PLANNED PRODUCTION SYSTEM
+┌─────────────────────────────┐             ┌─────────────────────────────┐
+│  In-Memory Pandas Loading   │  ────────►  │  Memory-Bounded Polars/Arrow│
+├─────────────────────────────┤             ├─────────────────────────────┤
+│  Hardcoded Pydantic Schema  │  ────────►  │  Dynamic JSON-Schema Engine │
+├─────────────────────────────┤             ├─────────────────────────────┤
+│  SQLite Metadata File       │  ────────►  │  PostgreSQL + DB Migrations │
+├─────────────────────────────┤             ├─────────────────────────────┤
+│  Synchronous File Uploads   │  ────────►  │  S3/Object Storage + Celery │
+└─────────────────────────────┘             └─────────────────────────────┘
+```
+
+1. **Polars Integration**: Replace pandas with Polars or PyArrow to enable memory-bounded, out-of-core file operations and prevent RAM failures on large datasets.
+2. **Dynamic JSON-Schema Validation**: Replace the hardcoded Pydantic schema with a dynamic validation layer that reads dataset structure requirements from JSON configuration files.
+3. **PostgreSQL Integration**: Migrate database persistence from SQLite to PostgreSQL, managing updates through SQLAlchemy migrations.
+4. **Asynchronous Task Architecture**: Add Celery and Redis to process analysis requests asynchronously, letting the API quickly return a job ID while worker processes perform the calculations.
+
+---
+
+# Key Engineering Skills Demonstrated
+
+- **FastAPI**: Asynchronous REST framework configuration and API routing.
+- **Docker**: Portable execution environments and container setups.
+- **REST API Design**: Secure, key-authenticated REST endpoints.
+- **Statistical Monitoring**: Data drift, label drift, and fairness metric calculation.
+- **Pydantic Validation**: Strict data contract validation schemas.
+- **SQLAlchemy**: Decoupled relational metadata models.
+- **Pytest**: Modular testing patterns spanning unit, integration, and API tests.
+
+---
+
+# Local Setup & Running Instructions
+
+### 1. Requirements Setup
+Clone the repository and create a clean virtual environment:
+```bash
+git clone https://github.com/YourUsername/AI-model-quality-analyzer.git
+cd AI-model-quality-analyzer
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Configure Environment
+Generate your environment variables file and configure your API key:
+```bash
+cp .env.example .env
+# Edit the .env file to verify the default API key:
+# API_KEY=my-local-dev-key-12345
+```
+
+### 3. Fetch Baseline Data & Baseline Models
+Download the sample datasets and generate the baseline model run parameters:
+```bash
+python scripts/download_data.py
+python scripts/train_model.py
+```
+
+### 4. Run the API Server
+Start the FastAPI server:
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+### 5. Launch the Dashboard
+In a separate terminal tab, start your Streamlit user interface:
+```bash
+streamlit run drift_streamlit_app.py
+```
+Open [http://localhost:8501](http://localhost:8501) in your browser to explore your statistical reports.
+
+---
+
+# License
+
+This project is licensed under the MIT License. Refer to the LICENSE file for complete license information.
