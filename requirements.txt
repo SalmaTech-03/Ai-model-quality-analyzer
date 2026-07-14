@@ -4,7 +4,7 @@ python-multipart
 pandas
 numpy<2.0.0
 scikit-learn
-evidently
+evidently==0.4.25
 jinja2
 httpx
 pytest

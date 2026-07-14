@@ -1,16 +1,18 @@
-version: '3.8'
-
 services:
-  web:
+  api:
     build: .
-    container_name: modelguard_platform
     ports:
+      # host:container - change the host side (left number) if 8000 is taken
       - "8000:8000"
-    volumes:
-      # Persist the SQLite database outside the container
-      - ./modelguard.db:/app/modelguard.db
-      # Allow live reloading during development
-      - ./app:/app/app
     environment:
-      - APP_ENV=production
-    restart: always
+      # Required by app/api/routes.py's verify_api_key dependency.
+      # Put a real secret in a local .env file (see .env.example) - never
+      # commit the actual value.
+      - API_KEY=${API_KEY}
+    volumes:
+      # Mount data/ so downloaded datasets and trained models persist across
+      # container restarts instead of vanishing when the container is removed.
+      - ./data:/code/data
+    # Uncomment if you add a docker-managed database later:
+    # depends_on:
+    #   - db
